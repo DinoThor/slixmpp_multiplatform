@@ -1,0 +1,70 @@
+name: Build and publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Clone Slixmpp
+        run: |
+          git clone https://codeberg.org/poezio/slixmpp.git slixmpp
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build wheels with maturin
+        working-directory: slixmpp
+        run: |
+          maturin build -i python${{ matrix.python-version }} --release
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: slixmpp/target/wheels/*.whl
+
+  publish:
+    name: Publish all wheels
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+
+      - name: List wheels
+        run: ls -R dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: dist/**/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Publish to PyPI
+        run: |
+          maturin upload dist/**/*.whl --username __token__ --password ${{ secrets.PYPI_TOKEN }}
