@@ -15,7 +15,20 @@ jobs:
     steps:
       - name: Clone Slixmpp
         run: |
-          git clone https://codeberg.org/poezio/slixmpp.git slixmpp
+          git clone https://codeberg.org/poezio/slixmpp.git slixmpp_multiplatform
+
+      - name: Rename to slixmpp_multiplatform
+        run: |
+          pip install tomlkit
+          python -c "
+          import tomlkit
+          with open('pyproject.toml', 'r+') as f:
+              data = tomlkit.parse(f.read())
+              data['project']['name'] = 'slixmpp_multiplatform'
+              f.seek(0)
+              f.write(tomlkit.dumps(data))
+              f.truncate()
+          "
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
