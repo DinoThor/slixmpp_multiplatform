@@ -22,7 +22,7 @@ jobs:
           pip install tomlkit
           python -c "
           import tomlkit
-          with open('slixmpp/pyproject.toml', 'r+') as f:
+          with open('slixmpp_multiplatform/pyproject.toml', 'r+') as f:
               data = tomlkit.parse(f.read())
               data['project']['name'] = 'slixmpp_multiplatform'
               f.seek(0)
