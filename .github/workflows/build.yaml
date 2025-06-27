@@ -18,6 +18,7 @@ jobs:
           git clone https://codeberg.org/poezio/slixmpp.git slixmpp_multiplatform
 
       - name: Rename to slixmpp_multiplatform
+        working-directory: slixmpp
         run: |
           pip install tomlkit
           python -c "
