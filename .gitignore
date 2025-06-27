@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
+.env*/  # .envrc, .env.local, etc.
+.venv/
+pip-wheel-metadata/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# pytest
+.cache/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode, PyCharm and other IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# mypy, coverage, etc.
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# test result reports
+junit.xml
+
+# GitHub Actions artifacts
+*.log
+*.tmp
+*.bak
+
+# Ignore Python secrets if you ever use dotenv
+*.env

@@ -18,12 +18,11 @@ jobs:
           git clone https://codeberg.org/poezio/slixmpp.git slixmpp_multiplatform
 
       - name: Rename to slixmpp_multiplatform
-        working-directory: slixmpp
         run: |
           pip install tomlkit
           python -c "
           import tomlkit
-          with open('pyproject.toml', 'r+') as f:
+          with open('slixmpp/pyproject.toml', 'r+') as f:
               data = tomlkit.parse(f.read())
               data['project']['name'] = 'slixmpp_multiplatform'
               f.seek(0)
