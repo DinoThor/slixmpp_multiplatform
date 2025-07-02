@@ -59,7 +59,7 @@ def walk_and_process():
 
 
 def rename_toml():
-    with open("slixmpp/slixmpp_multiplatform/pyproject.toml", "r+", encoding="utf-8") as f:
+    with open("slixmpp/pyproject.toml", "r+", encoding="utf-8") as f:
         data = tomlkit.parse(f.read())
         data["project"]["name"] = "slixmpp_multiplatform"
         f.seek(0)
