@@ -50,15 +50,15 @@ def process_file(filepath):
         print(f"Modified: {filepath}")
 
 
-def walk_and_process(directory="."):
-    for root, _, files in os.walk(directory):
+def walk_and_process():
+    for root, _, files in os.walk("slixmpp/slixmpp_multiplatform"):
         for file in files:
             if file.endswith(".py"):
                 path = os.path.join(root, file)
                 process_file(path)
 
 
-def rename_toml(filepath):
+def rename_toml():
     with open("slixmpp/slixmpp_multiplatform/pyproject.toml", "r+", encoding="utf-8") as f:
         data = tomlkit.parse(f.read())
         data["project"]["name"] = "slixmpp_multiplatform"
@@ -74,4 +74,4 @@ def rename_sourcedir():
 if __name__ == "__main__":
     rename_sourcedir()
     rename_toml()
-    walk_and_process("slixmpp/slixmpp_multiplatform")
+    walk_and_process()
