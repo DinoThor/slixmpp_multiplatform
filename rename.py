@@ -63,7 +63,7 @@ def rename_toml():
         data = tomlkit.parse(f.read())
         data["project"]["name"] = "slixmpp_multiplatform"
         data["tool"]["maturin"]["module-name"] = "slixmpp_multiplatform.jid"
-        data["tool"]["maturin"]["python-packages"] = "slixmpp_multiplatform"
+        data["tool"]["maturin"]["python-packages"] = ["slixmpp_multiplatform"]
         f.seek(0)
         f.write(tomlkit.dumps(data))
         f.truncate()
