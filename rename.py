@@ -66,6 +66,15 @@ def rename_toml():
         f.write(tomlkit.dumps(data))
         f.truncate()
 
+def rename_cargo_toml():
+    with open("slixmpp/Cargo.toml", "r+", encoding="utf-8") as f:
+        data = tomlkit.parse(f.read())
+        data["package"]["name"] = "slixmpp_multiplatform"
+        data["lib"]["path"] = "slixmpp_multiplatform/jid.rs"
+        f.seek(0)
+        f.write(tomlkit.dumps(data))
+        f.truncate()
+
 
 def rename_sourcedir():
     os.rename('slixmpp/slixmpp', 'slixmpp/slixmpp_multiplatform')
