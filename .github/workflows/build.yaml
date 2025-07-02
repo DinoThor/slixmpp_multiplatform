@@ -8,11 +8,13 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12']
 
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -20,20 +22,12 @@ jobs:
 
       - name: Clone Slixmpp
         run: |
-          git clone https://codeberg.org/poezio/slixmpp.git slixmpp_multiplatform
+          git clone https://codeberg.org/poezio/slixmpp.git
 
-      - name: Rename to slixmpp_multiplatform
+      - name: Refact code to use "slixmpp_multiplatform" name
         run: |
           pip install tomlkit
-          python -c "
-          import tomlkit
-          with open('slixmpp_multiplatform/pyproject.toml', 'r+', encoding='utf-8') as f:
-              data = tomlkit.parse(f.read())
-              data['project']['name'] = 'slixmpp_multiplatform'
-              f.seek(0)
-              f.write(tomlkit.dumps(data))
-              f.truncate()
-          "
+          python rename.py
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
