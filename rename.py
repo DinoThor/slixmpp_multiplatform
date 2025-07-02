@@ -83,4 +83,5 @@ def rename_sourcedir():
 if __name__ == "__main__":
     rename_sourcedir()
     rename_toml()
+    rename_cargo_toml()
     walk_and_process()
