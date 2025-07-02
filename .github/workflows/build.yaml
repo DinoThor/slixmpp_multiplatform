@@ -36,7 +36,7 @@ jobs:
         run: pip install maturin
 
       - name: Build wheels with maturin
-        working-directory: slixmpp
+        # working-directory: slixmpp
         run: |
           maturin build -i python${{ matrix.python-version }} --release
 
