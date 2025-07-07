@@ -5,21 +5,10 @@ on:
     branches: [master]
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-
-    runs-on: ${{ matrix.os }}
+  retrieve-package:
+    name: Clone Slixmpp and rename
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Clone Slixmpp
         run: |
           git clone https://codeberg.org/poezio/slixmpp.git
@@ -30,6 +19,33 @@ jobs:
           sed -i.bak 's/^name = "slixmpp"/name = "slixmpp_multiplatform"/' pyproject.toml
           sed -i.bak 's/name = "slixmpp"/name = "slixmpp_multiplatform"/' Cargo.toml
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: slixmpp-multiplatform
+          path: slixmpp
+
+  build:
+    name: Build binaries for all platforms
+    needs: retrieve-package
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download slixmpp
+        uses: actions/download-artifact@v4
+        with:
+          name: slixmpp-multiplatform
+          path: slixmpp-multiplatform
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
@@ -37,7 +53,7 @@ jobs:
         run: pip install maturin
 
       - name: Build wheels with maturin
-        working-directory:  slixmpp
+        working-directory:  slixmpp-multiplatform
         run: |
           maturin build -i python${{ matrix.python-version }} --release
 
