@@ -24,10 +24,11 @@ jobs:
         run: |
           git clone https://codeberg.org/poezio/slixmpp.git
 
-      - name: Refact code to use "slixmpp_multiplatform" name
+      - name: Patch project name in pyproject.toml and Cargo.toml
+        working-directory: slixmpp
         run: |
-          pip install tomlkit
-          python rename.py
+          sed -i.bak 's/^name = "slixmpp"/name = "slixmpp_multiplatform"/' pyproject.toml
+          sed -i.bak 's/name = "slixmpp"/name = "slixmpp_multiplatform"/' Cargo.toml
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
