@@ -2,7 +2,8 @@ name: Build and publish
 
 on:
   push:
-    branches: [master]
+    tags:
+      - 'v*'
 
 jobs:
   retrieve-package:
@@ -26,11 +27,11 @@ jobs:
           path: slixmpp
 
   build:
-    name: Build binaries for all platforms
+    name: Build for Win + macOS
     needs: retrieve-package
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12']
 
     runs-on: ${{ matrix.os }}
@@ -63,9 +64,41 @@ jobs:
           name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
           path: slixmpp-multiplatform/target/wheels/*.whl
 
+  build-linux:
+    name: Build for Linux
+    needs: retrieve-package
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download slixmpp
+        uses: actions/download-artifact@v4
+        with:
+          name: slixmpp-multiplatform
+          path: slixmpp-multiplatform
+
+      - name: Build wheels using maturin container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/io \
+            -w /io/slixmpp-multiplatform \
+            ghcr.io/pyo3/maturin \
+            build --release --manylinux 2014 -i python${{ matrix.python-version }}
+
+      - name: List wheels
+        run: ls -lh slixmpp-multiplatform/target/wheels/
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-linux-py${{ matrix.python-version }}
+          path: slixmpp-multiplatform/target/wheels/*.whl
+
   publish:
     name: Publish all wheels
-    needs: build
+    needs: [build, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
