@@ -58,26 +58,40 @@ jobs:
         working-directory: slixmpp-multiplatform
         run: |
           rustup target add aarch64-apple-darwin
-          maturin build --release --target aarch64-apple-darwin -i python${{ matrix.python-version }}
+          maturin build --release --target aarch64-apple-darwin -i python${{ matrix.python-version }} --out target/wheels_arm64
 
       - name: Build macOS x86_64 wheel
         if: matrix.os == 'macos-latest'
         working-directory: slixmpp-multiplatform
         run: |
           rustup target add x86_64-apple-darwin
-          maturin build --release --target x86_64-apple-darwin -i python${{ matrix.python-version }}
+          maturin build --release --target x86_64-apple-darwin -i python${{ matrix.python-version }} --out target/wheels_x86_64
 
       - name: Build Windows wheel
         if: matrix.os == 'windows-latest'
         working-directory: slixmpp-multiplatform
         run: |
-          maturin build --release -i python${{ matrix.python-version }}
+          maturin build --release -i python${{ matrix.python-version }} --out target/wheels_x86_64
 
-      - name: Upload wheel
+      - name: Upload macOS ARM64 wheel
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-macos-arm64-py${{ matrix.python-version }}
+          path: slixmpp-multiplatform/target/wheels_arm64/*.whl
+
+      - name: Upload macOS x86_64 wheel
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-macos-x86_64-py${{ matrix.python-version }}
+          path: slixmpp-multiplatform/target/wheels_x86_64/*.whl
+
+      - name: Upload Windows wheel
         uses: actions/upload-artifact@v4
         with:
           name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: slixmpp-multiplatform/target/wheels/*.whl
+          path: slixmpp-multiplatform/target/wheels_x86_64/*.whl
 
   build-linux:
     name: Build for Linux
@@ -100,16 +114,17 @@ jobs:
             -v ${{ github.workspace }}:/io \
             -w /io/slixmpp-multiplatform \
             ghcr.io/pyo3/maturin \
-            build --release --manylinux 2014 -i python${{ matrix.python-version }}
+            build --release --manylinux 2014 -i python${{ matrix.python-version }} \
+            --out /io/slixmpp-multiplatform/target/wheels_x86_64
 
       - name: List wheels
-        run: ls -lh slixmpp-multiplatform/target/wheels/
+        run: ls -lh slixmpp-multiplatform/target/wheels_x86_64/
 
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
           name: wheel-linux-py${{ matrix.python-version }}
-          path: slixmpp-multiplatform/target/wheels/*.whl
+          path: slixmpp-multiplatform/target/wheels_x86_64/*.whl
 
   publish:
     name: Publish all wheels
@@ -139,4 +154,4 @@ jobs:
 
       - name: Publish to PyPI
         run: |
-          maturin upload dist/**/*.whl --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+          find dist -name "*.whl" -exec maturin upload {} --username __token__ --password ${{ secrets.PYPI_TOKEN }} \;
