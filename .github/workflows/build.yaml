@@ -2,8 +2,8 @@ name: Build and publish
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - 'ci'
 
 jobs:
   retrieve-package:
