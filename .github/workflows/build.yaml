@@ -102,11 +102,7 @@ jobs:
       - name: Build wheels with maturin
         working-directory: slixmpp-multiplatform
         run: |
-          if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            maturin build -i python${{ matrix.matrix.python-version }} --release --universal2
-          else
-            maturin build -i python${{ matrix.matrix.python-version }} --release
-          fi
+          maturin build -i python${{ matrix.matrix.python-version }} --release
 
       - name: Upload wheel
         uses: actions/upload-artifact@v4
