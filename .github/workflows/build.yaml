@@ -30,12 +30,12 @@ jobs:
           name: slixmpp-multiplatform
           path: slixmpp
 
-  build:
-    name: Build for Win + macOS
+  build-win:
+    name: Build for Win
     needs: retrieve-package
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     runs-on: ${{ matrix.os }}
@@ -59,6 +59,90 @@ jobs:
 
       - name: Build wheels with maturin
         working-directory:  slixmpp-multiplatform
+        run: |
+          if [ "${{ matrix.os }}" = "macos-latest" ]; then
+            maturin build -i python${{ matrix.matrix.python-version }} --release --universal2
+          else
+            maturin build -i python${{ matrix.matrix.python-version }} --release
+          fi
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: slixmpp-multiplatform/target/wheels/*.whl
+
+  build-macos-silicon:
+    name: Build for macOS (Apple Silicon)
+    needs: retrieve-package
+    strategy:
+      matrix:
+        os: [macos-latest]
+        python-version: [ '3.9', '3.10', '3.11', '3.12', '3.13', '3.14' ]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download slixmpp
+        uses: actions/download-artifact@v4
+        with:
+          name: slixmpp-multiplatform
+          path: slixmpp-multiplatform
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build wheels with maturin
+        working-directory: slixmpp-multiplatform
+        run: |
+          if [ "${{ matrix.os }}" = "macos-latest" ]; then
+            maturin build -i python${{ matrix.matrix.python-version }} --release --universal2
+          else
+            maturin build -i python${{ matrix.matrix.python-version }} --release
+          fi
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: slixmpp-multiplatform/target/wheels/*.whl
+
+  build-macos-x86:
+    name: Build for macOS (x86)
+    needs: retrieve-package
+    strategy:
+      matrix:
+        os: [macos-13]
+        python-version: [ '3.9', '3.10', '3.11', '3.12', '3.13', '3.14' ]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download slixmpp
+        uses: actions/download-artifact@v4
+        with:
+          name: slixmpp-multiplatform
+          path: slixmpp-multiplatform
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build wheels with maturin
+        working-directory: slixmpp-multiplatform
         run: |
           if [ "${{ matrix.os }}" = "macos-latest" ]; then
             maturin build -i python${{ matrix.matrix.python-version }} --release --universal2
