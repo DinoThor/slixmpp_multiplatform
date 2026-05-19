@@ -2,6 +2,8 @@ name: Build and publish
 
 on:
   push:
+    branches:
+      - '*'
     tags:
       - 'v*'
 
@@ -10,9 +12,11 @@ jobs:
     name: Clone Slixmpp and rename
     runs-on: ubuntu-latest
     steps:
-      - name: Clone Slixmpp
+      - name: Download and extract slixmpp source
         run: |
-          git clone https://codeberg.org/poezio/slixmpp.git
+          curl -sSL https://codeberg.org/poezio/slixmpp/archive/slix-1.12.0.tar.gz -o slixmpp.tar.gz
+          tar -xzf slixmpp.tar.gz
+          cd slixmpp
 
       - name: Patch project name in pyproject.toml and Cargo.toml
         working-directory: slixmpp
@@ -32,7 +36,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -69,7 +73,7 @@ jobs:
     needs: retrieve-package
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     runs-on: ubuntu-latest
     steps:
