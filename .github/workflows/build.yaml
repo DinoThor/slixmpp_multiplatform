@@ -190,7 +190,7 @@ jobs:
 
   publish:
     name: Publish all wheels
-    needs: [build, build-linux]
+    needs: [build-macos-silicon, build-macos-x86, build-win, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
